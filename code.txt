@@ -1,0 +1,149 @@
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+class Student {
+private:
+    int rollNo;
+    char* name;
+    float marks;
+    static int count;
+
+public:
+    // Parameterized Constructor
+    Student(int r, const char* n, float m) : rollNo(r), marks(m) {
+        name = new char[strlen(n) + 1];
+        strcpy(name, n);
+        count++;
+    }
+
+    // Copy Constructor
+    Student(const Student& other) : rollNo(other.rollNo), marks(other.marks) {
+        name = new char[strlen(other.name) + 1];
+        strcpy(name, other.name);
+        count++;
+    }
+
+    // Copy Assignment Operator
+    Student& operator=(const Student& other) {
+        if (this != &other) {
+            delete[] name;
+            name = new char[strlen(other.name) + 1];
+            strcpy(name, other.name);
+            rollNo = other.rollNo;
+            marks = other.marks;
+        }
+        return *this;
+    }
+
+    // Destructor
+    ~Student() {
+        delete[] name;
+        count--;
+    }
+
+    // Getters & Setters
+    int getRollNo() const { return rollNo; }
+    const char* getName() const { return name; }
+    float getMarks() const { return marks; }
+    void setMarks(float m) { marks = m; }
+
+    // Overloaded Display Methods
+    void display() const {
+        cout << "Roll No: " << rollNo << ", Name: " << name << ", Marks: " << marks << endl;
+    }
+
+    void display(bool showGrade) const {
+        display();
+        if (showGrade) {
+            cout << "  Grade: " << grade() << endl;
+        }
+    }
+
+    // Overloaded Update Methods
+    void updateMarks(float m) {
+        marks = m;
+    }
+
+    void updateMarks(float m1, float m2) {
+        marks = (m1 + m2) / 2;
+    }
+
+    // Grade Calculation
+    char grade() const {
+        if (marks >= 90) return 'A';
+        if (marks >= 75) return 'B';
+        if (marks >= 60) return 'C';
+        if (marks >= 40) return 'D';
+        return 'F';
+    }
+
+    // Static Member Function
+    static int getCount() {
+        return count;
+    }
+
+    // Overloaded > Operator
+    bool operator>(const Student& other) const {
+        return marks > other.marks;
+    }
+
+    // Friend Function Declaration
+    friend void showDetails(const Student& s);
+};
+
+// Initialize static member
+int Student::count = 0;
+
+// Friend Function Definition
+void showDetails(const Student& s) {
+    cout << "[Friend] " << s.name << " (Roll " << s.rollNo << ") scored " << s.marks << " marks." << endl;
+}
+
+int main() {
+    cout << "Students at start: " << Student::getCount() << "\n\n";
+
+    Student s1(101, "Aarav", 82.5f);
+    Student s2(102, "Diya", 91.0f);
+    Student s3(103, "Kabir", 67.0f);
+
+    cout << "--- Student details (overloaded display) ---\n";
+    s1.display();
+    s2.display(true);
+    s3.display(true);
+
+    cout << "\n--- Friend function ---\n";
+    showDetails(s1);
+    showDetails(s2);
+
+    cout << "\n--- Overloaded updateMarks ---\n";
+    s3.updateMarks(70.0f);
+    cout << "After updateMarks(70): ";
+    s3.display();
+
+    s3.updateMarks(70.0f, 80.0f);
+    cout << "After updateMarks(70, 80): ";
+    s3.display();
+
+    cout << "\n--- Overloaded > operator ---\n";
+    if (s1 > s2)
+        cout << s1.getName() << " has higher marks than " << s2.getName() << endl;
+    else
+        cout << s2.getName() << " has higher marks than " << s1.getName() << endl;
+
+    if (s3 > s1)
+        cout << s3.getName() << " has higher marks than " << s1.getName() << endl;
+    else
+        cout << s1.getName() << " has higher marks than " << s3.getName() << endl;
+
+    cout << "\n--- Static member count ---\n";
+    cout << "Total students: " << Student::getCount() << endl;
+    {
+        Student temp(104, "Temp", 50.0f);
+        cout << "Inside block: " << Student::getCount() << endl;
+    }
+    cout << "After block: " << Student::getCount() << endl;
+
+    return 0;
+}
